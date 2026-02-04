@@ -1,56 +1,15 @@
 import Link from 'next/link'
-import { ArrowRight, Calendar, Clock, User } from 'lucide-react'
+import { ArrowRight, Calendar, Clock } from 'lucide-react'
+import { getPostList } from '@/lib/posts'
 
-interface Post {
-  id: string
-  title: string
-  excerpt: string
-  date: string
-  readTime: string
-  category: string
-  slug: string
+export const metadata = {
+  title: '首页 | My Personal Blog',
+  description: '探索技术与设计的交汇点',
 }
 
-const posts: Post[] = [
-  {
-    id: '1',
-    title: '构建现代化的 Web 应用',
-    excerpt: '探索如何使用 Next.js、TypeScript 和 Tailwind CSS 构建高性能的现代化 Web 应用程序。',
-    date: '2024-01-15',
-    readTime: '5 分钟',
-    category: '技术',
-    slug: 'building-modern-web-apps',
-  },
-  {
-    id: '2',
-    title: 'React 性能优化最佳实践',
-    excerpt: '深入了解 React 应用的性能优化技巧，包括 memo、useMemo 和代码分割等。',
-    date: '2024-01-10',
-    readTime: '8 分钟',
-    category: 'React',
-    slug: 'react-performance-optimization',
-  },
-  {
-    id: '3',
-    title: '设计系统的重要性',
-    excerpt: '为什么每个团队都需要一个设计系统，以及如何构建一个可扩展的设计系统。',
-    date: '2024-01-05',
-    readTime: '6 分钟',
-    category: '设计',
-    slug: 'importance-of-design-systems',
-  },
-  {
-    id: '4',
-    title: 'TypeScript 高级类型技巧',
-    excerpt: '掌握 TypeScript 的高级类型系统，编写更类型安全的代码。',
-    date: '2024-01-01',
-    readTime: '10 分钟',
-    category: 'TypeScript',
-    slug: 'typescript-advanced-types',
-  },
-]
+export default async function HomePage() {
+  const posts = await getPostList()
 
-export default function HomePage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -160,7 +119,7 @@ export default function HomePage() {
           </div>
 
           <div className="grid gap-8 md:grid-cols-2">
-            {posts.map((post) => (
+            {posts.slice(0, 4).map((post) => (
               <article
                 key={post.id}
                 className="group flex flex-col rounded-2xl border border-gray-200 bg-white p-6 transition-all hover:shadow-xl hover:shadow-gray-200/50">
