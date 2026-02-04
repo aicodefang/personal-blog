@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* 或者选择其他主题：
+@import 'highlight.js/styles/atom-one-dark.css';
+@import 'highlight.js/styles/vs2015.css';
+*/
+
 :root {
   --font-geist-sans: 'Inter', system-ui, sans-serif;
   --font-geist-mono: 'JetBrains Mono', monospace;
@@ -79,4 +84,31 @@ p {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #a1a1a1;
+}
+
+
+/* 优化代码块样式 - 移除每行的背景色 */
+.prose pre code .line {
+  background-color: transparent !important;
+}
+
+.prose pre {
+  background-color: #1f2937 !important; /* 保持整体深色背景 */
+  color: #f3f4f6 !important;
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+.prose pre code {
+  background-color: transparent !important;
+  color: inherit !important;
+  padding: 0;
+}
+
+/* 优化内联代码样式 */
+.prose :where(code):not(pre code) {
+  background-color: #f3f4f6 !important;
+  color: #374151 !important;
+  padding: 0.2em 0.4em;
+  border-radius: 0.25rem;
 }

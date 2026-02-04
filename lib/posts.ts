@@ -3,6 +3,8 @@ import path from 'path'
 import matter from 'gray-matter'
 import { remark } from 'remark'
 import html from 'remark-html'
+import remarkGfm from 'remark-gfm'
+import rehypeHighlight from 'rehype-highlight'
 
 export interface Post {
   id: string
@@ -110,7 +112,11 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
 
 // 将 Markdown 转换为 HTML
 export async function markdownToHtml(markdown: string): Promise<string> {
-  const result = await remark().use(html).process(markdown)
+  const result = await remark()
+    .use(remarkGfm)           // 支持 GitHub Flavored Markdown
+    .use(html)                // 转换为 HTML
+    .use(rehypeHighlight)     // 添加代码高亮
+    .process(markdown)
   return result.toString()
 }
 
