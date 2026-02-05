@@ -13,6 +13,7 @@ export async function getAllPosts(): Promise<Post[]> {
   
   if (error) {
     console.error('Error fetching posts:', error)
+    console.log(error)
     return []
   }
   
