@@ -1,14 +1,33 @@
+'use client'
+
 import Link from 'next/link'
 import { ArrowRight, Calendar, Clock } from 'lucide-react'
-import { getPostList } from '@/lib/posts'
+import { useEffect, useState } from 'react'
+import { supabase, Post } from '@/lib/supabase'
 
-export const metadata = {
-  title: '首页 | My Personal Blog',
-  description: '探索技术与设计的交汇点',
-}
+export default function HomePage() {
+  const [posts, setPosts] = useState<Post[]>([])
+  const [loading, setLoading] = useState(true)
 
-export default async function HomePage() {
-  const posts = await getPostList()
+  useEffect(() => {
+    async function fetchPosts() {
+      const { data, error } = await supabase
+        .from('posts')
+        .select('*')
+        .eq('published', true)
+        .order('date', { ascending: false })
+        .limit(4)
+      
+      if (error) {
+        console.error('Error fetching posts:', error)
+      } else {
+        setPosts(data || [])
+      }
+      setLoading(false)
+    }
+
+    fetchPosts()
+  }, [])
 
   return (
     <div className="min-h-screen bg-white">
@@ -41,14 +60,6 @@ export default async function HomePage() {
               关于
             </Link>
           </nav>
-          <button 
-            className="rounded-lg p-2 text-gray-600 transition-colors hover:bg-gray-100 sm:hidden"
-            aria-label="打开菜单"
-          >
-            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
         </div>
       </header>
 
@@ -118,40 +129,61 @@ export default async function HomePage() {
             </Link>
           </div>
 
-          <div className="grid gap-8 md:grid-cols-2">
-            {posts.slice(0, 4).map((post) => (
-              <article
-                key={post.id}
-                className="group flex flex-col rounded-2xl border border-gray-200 bg-white p-6 transition-all hover:shadow-xl hover:shadow-gray-200/50">
-                <div className="mb-4 flex items-center gap-3 text-sm text-gray-500">
-                  <span className="inline-flex items-center rounded-full bg-primary-50 px-2.5 py-0.5 text-xs font-medium text-primary-700">
-                    {post.category}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Calendar className="h-3.5 w-3.5" />
-                    {post.date}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Clock className="h-3.5 w-3.5" />
-                    {post.readTime}
-                  </span>
+          {loading ? (
+            <div className="grid gap-8 md:grid-cols-2">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="animate-pulse rounded-2xl border border-gray-200 bg-white p-6">
+                  <div className="h-4 bg-gray-200 rounded w-1/4 mb-4"></div>
+                  <div className="h-6 bg-gray-200 rounded w-3/4 mb-3"></div>
+                  <div className="h-4 bg-gray-200 rounded w-full"></div>
                 </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid gap-8 md:grid-cols-2">
+              {posts.map((post) => {
+                const formattedDate = new Date(post.date).toLocaleDateString('zh-CN', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                })
+                
+                return (
+                  <article
+                    key={post.id}
+                    className="group flex flex-col rounded-2xl border border-gray-200 bg-white p-6 transition-all hover:shadow-xl hover:shadow-gray-200/50"
+                  >
+                    <div className="mb-4 flex items-center gap-3 text-sm text-gray-500">
+                      <span className="inline-flex items-center rounded-full bg-primary-50 px-2.5 py-0.5 text-xs font-medium text-primary-700">
+                        {post.category}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Calendar className="h-3.5 w-3.5" />
+                        {formattedDate}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Clock className="h-3.5 w-3.5" />
+                        {post.read_time}
+                      </span>
+                    </div>
 
-                <Link href={`/posts/${post.slug}`} className="group/link">
-                  <h3 className="mb-3 text-xl font-bold text-gray-900 transition-colors group-hover/link:text-primary-600">
-                    {post.title}
-                  </h3>
-                  <p className="mb-4 flex-1 text-gray-600 leading-relaxed">
-                    {post.excerpt}
-                  </p>
-                  <span className="inline-flex items-center gap-1 text-sm font-medium text-primary-600 transition-all group-hover/link:gap-2">
-                    阅读全文
-                    <ArrowRight className="h-4 w-4" />
-                  </span>
-                </Link>
-              </article>
-            ))}
-          </div>
+                    <Link href={`/posts/${post.slug}`} className="group/link">
+                      <h3 className="mb-3 text-xl font-bold text-gray-900 transition-colors group-hover/link:text-primary-600">
+                        {post.title}
+                      </h3>
+                      <p className="mb-4 flex-1 text-gray-600 leading-relaxed">
+                        {post.excerpt}
+                      </p>
+                      <span className="inline-flex items-center gap-1 text-sm font-medium text-primary-600 transition-all group-hover/link:gap-2">
+                        阅读全文
+                        <ArrowRight className="h-4 w-4" />
+                      </span>
+                    </Link>
+                  </article>
+                )
+              })}
+            </div>
+          )}
 
           <div className="mt-8 flex justify-center sm:hidden">
             <Link
